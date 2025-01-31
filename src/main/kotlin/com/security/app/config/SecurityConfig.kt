@@ -47,7 +47,7 @@ class SecurityConfig {
             .csrf { it.disable() }
             .cors{ it.disable() }
             .authorizeHttpRequests {
-                it.requestMatchers("/api/v1/auth/**", "/error", "api/v1/payments/confirmation").permitAll()
+                it.requestMatchers("/api/v1/auth/**", "/error", "/api/v1/payments/confirmation", "/api/v1/payments/returnUrl").permitAll()
                 it.anyRequest().authenticated()
             }
             .sessionManagement {
