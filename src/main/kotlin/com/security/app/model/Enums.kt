@@ -35,3 +35,18 @@ enum class PaymentStatus(val serverValue: String) {
         }
     }
 }
+
+enum class UpdateUserProfileType(val serverValue: String){
+    SUBSCRIPTION("SUBSCRIPTION"),
+    ACHIEVEMENT("ACHIEVEMENT");
+
+    companion object {
+        fun fromString(value: String): UpdateUserProfileType {
+            return when(value) {
+                "SUBSCRIPTION" -> SUBSCRIPTION
+                "ACHIEVEMENT" -> ACHIEVEMENT
+                else -> throw IllegalArgumentException("Update user profile type not found")
+            }
+        }
+    }
+}
