@@ -1,13 +1,18 @@
 package com.security.app.services
 
 import com.security.app.entities.Payment
+import com.security.app.entities.Subscription
+import com.security.app.model.Message
 import com.security.app.model.PaymentStatus
+import com.security.app.model.UpdateUserProfileType
 import com.security.app.repositories.PaymentRepository
 import com.security.app.repositories.SubscriptionRepository
+import com.security.app.request.UpdateUserProfileRequest
 import com.security.app.utils.VNPayUtils
 import com.security.app.utils.toUUID
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.WebClient
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -17,8 +22,10 @@ import java.util.*
 class PaymentService(
     private val vnPayUtils: VNPayUtils,
     private val subscriptionRepository: SubscriptionRepository,
-    private val paymentRepository: PaymentRepository
+    private val paymentRepository: PaymentRepository,
+    private val webClient: WebClient,
 ) {
+    private final val INTERNAL_BASE_URL = System.getenv("INTERNAL_BASE_URL")
     fun createVnPaymentUrl(
         ipAddress: String,
         subscriptionId: String,
@@ -88,10 +95,26 @@ class PaymentService(
             paymentRepository.save(payment)
         }
 
+        updateSubscriptionForUser(payment.userId!!, payment.subscription)
+
         return createMessageResponse("Confirm Success", responseCode ?: "00")
     }
 
     private fun createMessageResponse(message: String, statusCode: String) : Map<String, *> {
         return mapOf("Message" to message, "RspCode" to statusCode)
+    }
+
+    private fun updateSubscriptionForUser(userId: UUID, subscription: Subscription?) {
+        val request = UpdateUserProfileRequest(
+            type = UpdateUserProfileType.SUBSCRIPTION.serverValue,
+            userId = userId.toString(),
+            subscription = subscription
+        )
+        webClient.post()
+            .uri("$INTERNAL_BASE_URL/api/internal/update-user-profile")
+            .bodyValue(request)
+            .retrieve()
+            .bodyToMono(Message.Success::class.java)
+            .block()
     }
 }

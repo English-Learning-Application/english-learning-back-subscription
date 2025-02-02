@@ -1,17 +1,18 @@
 package com.security.app.services
 
+import com.security.app.utils.JwtTokenUtils
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 
 class JwtUserDetailService(
-    private val userService: UserService
+    private val jwtTokenUtils: JwtTokenUtils
 ) : UserDetailsService {
     override fun loadUserByUsername(username: String): UserDetails {
-        val user = userService.getUserInformation(username)
+        val user = jwtTokenUtils.getUserId(username)
             ?: throw Exception("User not found")
 
         return org.springframework.security.core.userdetails.User
-            .withUsername(user.userId.toString())
+            .withUsername(user)
             .password("")
             .build()
     }

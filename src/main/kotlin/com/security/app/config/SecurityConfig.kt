@@ -2,7 +2,7 @@ package com.security.app.config
 
 import com.security.app.filters.JwtAuthorizationFilter
 import com.security.app.services.JwtUserDetailService
-import com.security.app.services.UserService
+import com.security.app.utils.JwtTokenUtils
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationProvider
@@ -21,15 +21,15 @@ import org.springframework.web.reactive.function.client.WebClient
 @EnableWebSecurity
 class SecurityConfig {
     @Bean
-    fun userDetailsService(userService: UserService): UserDetailsService =
-        JwtUserDetailService(userService)
+    fun userDetailsService(jwtTokenUtils: JwtTokenUtils): UserDetailsService =
+        JwtUserDetailService(jwtTokenUtils)
 
 
     @Bean
-    fun authenticationProvider(userService: UserService): AuthenticationProvider =
+    fun authenticationProvider(jwtTokenUtils: JwtTokenUtils): AuthenticationProvider =
         DaoAuthenticationProvider()
             .also {
-                it.setUserDetailsService(userDetailsService(userService))
+                it.setUserDetailsService(userDetailsService(jwtTokenUtils))
                 it.setPasswordEncoder(passwordEncoder())
             }
 

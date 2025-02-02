@@ -86,6 +86,11 @@ spec:
                 secretKeyRef:
                   name: subscription-service-secret
                   key: APP_PORT
+            - name: INTERNAL_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: INTERNAL_BASE_URL
           resources:
             requests:
               memory: "256Mi"
