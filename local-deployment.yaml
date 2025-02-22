@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: subscription-service-deployment
+  labels:
+    app: subscription-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: subscription-service
+  template:
+    metadata:
+      labels:
+        app: subscription-service
+    spec:
+      containers:
+        - name: subscription-service-container
+          imagePullPolicy: Never
+          image: "subscription-microservice:latest"
+          ports:
+            - containerPort: 8087
+          env:
+            - name: MODE
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: MODE
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: JWT_SECRET
+            - name: JWT_ISSUER
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: SECRET_ISSUER
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: DB_HOST
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: DB_NAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: DB_PASSWORD
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: DB_USER
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: DB_PORT
+            - name: PROFILE_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: PROFILE_SERVICE_URL
+            - name: NOTIFICATION_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: NOTIFICATION_SERVICE_URL
+            - name: VNPAY_TMNCODE
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: VNPAY_TMNCODE
+            - name: VNPAY_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: VNPAY_SECRET_KEY
+            - name: APP_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: APP_PORT
+            - name: INTERNAL_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: subscription-service-secret
+                  key: INTERNAL_BASE_URL
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "512m"
+            limits:
+              memory: "512Mi"
+              cpu: "1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: subscription-cluster-ip-service
+spec:
+  selector:
+    app: subscription-service
+  ports:
+    - protocol: TCP
+      port: 8087
+      targetPort: 8087
+  type: LoadBalancer
