@@ -110,4 +110,4 @@ spec:
     - protocol: TCP
       port: 8087
       targetPort: 8087
-  type: LoadBalancer
+  type: ClusterIP
